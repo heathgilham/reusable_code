@@ -1,0 +1,63 @@
+# Purpose: Find all open files in a directory
+# Author: Heath Gilham
+# Logic:  Check whether each file in the directory is open
+# Instructions: 1. Right click this file and choose "Run with Powershell"
+
+
+# Setup functions
+function Log($Text) {
+    $Timestamp = Get-Date -format "dd-MM-yyyy hh:mm:sstt"
+	$Text = ($Timestamp + " " + $Text)
+    Write-Host $Text
+    Add-content $LogFile -value $Text
+}
+
+
+# Setup variables
+$StartTime = Get-Date 
+$CurrentFolder = Get-Location
+$Datetime = Get-Date -format "ddMMyyyy_hhmmtt"
+$Date = (Get-Date -format "dd-MM-yyyy")
+$LogFolderName = "Log"
+$LogFileName = "$Date.log"
+$LogFolder = "$CurrentFolder\$LogFolderName"
+$LogFile = "$LogFolder\$LogFileName"
+$OutputFile = "$CurrentFolder\open_files_found.txt"
+$IsDebuggingMode = $false
+$OldFileDirName = "Old_files"
+If(!(test-path "$LogFolder")){New-Item -Path $CurrentFolder -Name $LogFolderName -ItemType "directory" | Out-Null}
+If(!(test-path "$LogFile")){New-Item -Path $LogFolder -Name $LogFileName -ItemType "file" -Value "" | Out-Null}
+Remove-Item -Path $OutputFile -ErrorAction Ignore
+
+$FolderToSearch = "C:\Users\heath\myscripts\"
+
+Log("---------------------Running " + $myInvocation.MyCommand.Path + "---------------------")
+
+Log("---------------------Part 1: Starting ---------------------")
+
+$FilesInCurrentFolder = Get-ChildItem -Path $FolderToSearch -Recurse -Exclude "*.log"
+
+Log("Adding file list to " + $OutputFile)
+
+foreach($File in $FilesInCurrentFolder){
+	
+	try {
+		$FileStream = [System.IO.File]::Open($File,'Open','Write')
+		$FileStream.Close()
+		$FileStream.Dispose()
+	} Catch [System.UnauthorizedAccessException] {
+		Log("AccessDenied for file: " + $File )
+	} Catch {
+		Add-content $OutputFile -value ("File locked: " + $File)
+	}	
+}
+
+Log("---------------------Part 1: Completed ---------------------")
+
+Log("---------------------Completed " + $myInvocation.MyCommand.Path + "---------------------")
+
+$EndTime = Get-Date 
+Log ("Time Taken: " + ($EndTime - $StartTime))
+
+# Pause to see the output of the run
+pause

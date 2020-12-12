@@ -1,0 +1,35 @@
+﻿# Purpose: Change a wide csv file to a long one
+# Author: Heath Gilham
+# Logic: Read through the values and add a new line for each with the id
+# Instructions: 1. Right click this file and choose "run with powershell"
+#				2. Use the output file "long_file.csv"
+
+# Set Variables
+$InputFile = "wide_file.csv"
+$OutputFile = "..\long_file.csv"
+
+# Delete previous output file
+Remove-Item -path $OutputFile
+
+# Import file
+$InputData = Import-Csv -path $InputFile
+
+# Add header
+"number,table_name" | Add-Content -path $OutputFile
+
+# Export each table name as new line
+foreach ($row in $InputData)
+{
+    $id = $row.number
+    $table_names = $row.table_name.Split(",")
+
+    if($table_names -and $table_names -ne 0)
+    {
+        foreach ($table in $table_names)
+        {
+           $table = $table.Trim()
+           "$id,$table" | Add-Content -path $OutputFile
+        }
+    }
+   
+} 

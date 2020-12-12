@@ -1,0 +1,23 @@
+# Purpose: Find and replace many values in ps1 file
+# Author: Heath Gilham
+# Logic: 
+# Instructions: 1. 
+#				2. 
+
+# Variables
+$CurrentFolder = Get-Location
+$PS1Files = "$CurrentFolder\*.ps1"
+$replace_csv = Import-Csv "$CurrentFolder/replacements.csv"
+
+Write-Host "Reading through CSV"
+
+# Replace variables in files
+foreach($line in $replace_csv){
+
+	Get-ChildItem $PS1Files -Exclude $myInvocation.MyCommand.Name | ForEach {
+		(Get-Content $_) -ireplace $line.from, $line.to | Set-Content ($_.fullname)
+	}	
+}
+
+# Pause to see the output of the run
+pause

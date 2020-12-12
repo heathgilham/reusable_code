@@ -1,0 +1,7 @@
+﻿# Purpose: Delete all running excel sessions
+# Author: Heath Gilham
+# Logic: Delete all running excel processes
+# Instructions: 1. Right click this file and choose "Run with Powershell"
+
+$CurrentFolder = Get-Location
+Get-ChildItem -Path "$CurrentFolder\*.ps1" -Exclude $MyInvocation.MyCommand.Name | Copy-Item -Force -Destination { $_.FullName.Replace('.ps1','.ps1.txt')} 

@@ -1,0 +1,34 @@
+﻿# Purpose: Convert CSV files to xlsx
+# Author: Heath Gilham
+# Logic: Convert all CSVs in this folder to xlsx. Rename the sheet name to the file name.
+# Instructions: 1. Right click this file and choose "run with powershell"
+#				2. Use the output files
+
+# Import CSV file
+$Datestamp = Get-Date -Format "_yyyyMMdd"
+$Path = Get-Location
+$ExcelWorkbookFormat = 51
+
+# Rename files
+Write-Host ("Starting conversion of files")
+$CSVFiles = Get-ChildItem -Path "$Path\*.csv"
+foreach($file in $CSVFiles){
+        
+        $NewName = $file.FullName.Replace(".csv",".xlsx")
+        $TabName = $file.Name.Replace(".csv","")
+        
+        $excel = New-Object -ComObject Excel.Application 
+        $excel.Visible = $true
+        $excel.DisplayAlerts = $false
+        $ExcelFile = $excel.Workbooks.Open($file.FullName)
+        $worksheet = $ExcelFile.worksheets.item(1)
+        $worksheet.name = $TabName
+        $ExcelFile.SaveAs($NewName,$ExcelWorkbookFormat)
+        $excel.Quit()
+        Write-Host ("Converted " + $file.Name + " to " + $NewName)
+    
+}
+
+Write-Host ("File conversion complete")
+
+pause

@@ -1,0 +1,33 @@
+# Purpose: Rename the extracts
+# Author: Heath Gilham
+# Logic: Move old files containing "dogs*" to the Old_files folder, find the relevant files in rename.csv and rename them
+# Instructions: 1. Right click this file and choose "run with powershell"
+#				2. Use the output files
+
+# Create output file name
+$LoggingTimestamp = Get-Date -format "dd/MM/yyyy HH:mm:sstt"
+$Path = Get-Location
+$RenameCSV = Import-Csv "$Path\rename.csv"
+
+# Backup previous output files
+Write-Host ($LoggingTimestamp + " Backing up old files")
+$OldFileDirName = "Old_files"
+If(!(test-path "$Path\$OldFileDirName")){New-Item -Path $Path -Name $OldFileDirName -ItemType "directory"}
+Move-Item -Path "$Path\dogs*" -Destination "$Path\$OldFileDirName" -Force
+Write-Host ($LoggingTimestamp + " File backup complete")
+
+# Merge files
+Write-Host ($LoggingTimestamp + " Starting rename of files")
+foreach($row in $RenameCSV){
+	$FromName = "$Path\" + $row.From + "*." + $row.FileExtension
+	$ToName = $row.To + "." + $row.FileExtension.ToLower()
+	if((Get-ChildItem $FromName | Measure-Object).Count -eq 1){
+		Get-ChildItem $FromName | Rename-Item -NewName $ToName
+		Write-Host ($LoggingTimestamp + " Renamed " + $row.From + "*." + $row.FileExtension + " to " + $ToName)
+	}
+}
+
+Write-Host ($LoggingTimestamp + " File rename complete")
+
+# Pause to see any error messages from the code
+pause

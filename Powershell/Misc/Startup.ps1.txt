@@ -1,0 +1,22 @@
+# Purpose: Automate opening programs at startup
+# Author: Heath Gilham
+# Logic: Open programs
+# Instructions: 1. Customise this script using a similar format
+#				2. Right click this file and choose "Run with Powershell"
+
+
+# Open Chrome links
+
+Start-Process -FilePath "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" -ArgumentList "google.com.ai --new-window --start-fullscreen"
+
+# Outlook
+Start-Process -FilePath "C:\Program Files (x86)\Microsoft Office\root\Office16\OUTLOOK.EXE"
+
+# Local OneDrive folder (dynamically based on your username)
+explorer "$env:USERPROFILE\OneDrive"
+
+# Remote Desktop Connection
+Start-Process "$env:windir\system32\mstsc.exe" -ArgumentList "/v:myservername"
+
+# Pause to see the output of the run
+pause

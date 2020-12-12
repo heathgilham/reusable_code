@@ -1,0 +1,221 @@
+# Purpose: Create list of unchecked volunteering opportunities
+# Author: Heath Gilham
+# Logic: Download HTML from websites. Find roles, organisations and links. Export roles which haven't already been checked.
+# Instructions: 1. Right click this file and choose "Run with Powershell"
+#				2. Check through whole list and visit link if interested
+#               3. Copy all rows from "Volunteering_Options.csv" to "Volunteering_Options_Checked.csv"
+
+cd "/Users/heathyboy1234/Google Drive (HG - GM)/Data Science/Data Science Projects/Reusable Code/Powershell/Volunteering Options/"
+
+# Setup functions
+function Log-Text($Text) {
+    $Timestamp = Get-Date -format "dd-MM-yyyy hh:mm:sstt"
+	$Text = ($Timestamp + " " + $Text)
+    Write-Host $Text
+    Add-content $LogFile -value $Text
+}
+
+# Setup variables
+$StartTime = Get-Date 
+$CurrentFolder = Get-Location
+$Datetime = Get-Date -format "ddMMyyyy_hhmmtt"
+$Date = (Get-Date -format "dd-MM-yyyy")
+$LogFolderName = "Log"
+$LogFileName = "$Date.log"
+$LogFolder = "$CurrentFolder\$LogFolderName"
+$LogFile = "$LogFolder\$LogFileName"
+$IsDebuggingMode = $false
+$OldFileDirName = "Old_files"
+If(!(test-path "$LogFolder")){New-Item -Path $CurrentFolder -Name $LogFolderName -ItemType "directory"}
+If(!(test-path "$LogFile")){New-Item -Path $LogFolder -Name $LogFileName -ItemType "file" -Value ""}
+If(!(test-path "$CurrentFolder\$OldFileDirName")){New-Item -Path $CurrentFolder -Name $OldFileDirName -ItemType "directory"}
+$WebContentFile = "./WebContent.txt"
+$CSVExportFile = "./Volunteering_Options.csv"
+$CSVCheckedFile = "./Volunteering_Options_Checked.csv"
+$LinksChecked = @(Import-Csv $CSVCheckedFile)
+Remove-Item $CSVExportFile -Force -ErrorAction Ignore
+Remove-Item $WebContentFile -Force -ErrorAction Ignore
+Log-Text("Running " + $myInvocation.MyCommand.Name)
+
+
+Log-Text("Collecting Volunteer.com.au data")
+Foreach($pagenum in 1..50){
+    (Invoke-WebRequest -Uri ("https://www.volunteer.com.au/volunteering/in-melbourne-cbd-inner-suburbs-melbourne-vic?daytime=1%2C3&page=" + $pagenum + "&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27")).Links | Select outerHTML | Where {(($_ -match "sc-1lrhu3b-3 dQAih") -or ($_ -match "volunteering-organisations")) -and !($_ -match "List of organisations")} | Add-Content $WebContentFile
+    (Invoke-WebRequest -Uri ("https://www.volunteer.com.au/volunteering/in-online-or-remote?daytime=1%2C3&page=" + $pagenum + "&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27")).Links | Select outerHTML | Where {(($_ -match "sc-1lrhu3b-3 dQAih") -or ($_ -match "volunteering-organisations")) -and !($_ -match "List of organisations")} | Add-Content $WebContentFile
+}
+Log-Text("HTML data collected")
+
+Log-Text("Reading through Volunteer.com.au data")
+$data = Get-Content $WebContentFile
+$count = 0
+$Organisation = @()
+$Role = @()
+$Link = @()
+Foreach($row in $data){
+
+    If($row -match "volunteering-organisations"){
+        $Organisation += $row.substring($row.IndexOf(">")+1,$row.IndexOf("</") - $row.IndexOf(">")-1)                           
+       
+    }elseif($row -match "sc-1lrhu3b-3 dQAih"){
+        $Role += $row.substring($row.IndexOf(">")+1,$row.IndexOf("</") - $row.IndexOf(">")-1)                                        
+        $Link += "https://www.volunteer.com.au" + $row.substring($row.IndexOf("href")+6,$row.IndexOf(">") - $row.IndexOf("href")-7)
+            
+    }
+}
+
+If(!(Test-Path $CSVExportFile)){("Date Checked,Role,Organisation,Link") | Add-Content $CSVExportFile}
+Foreach($rownum in 0..($Role.count-1)){
+    
+    #If(!($LinksChecked.Link.Contains($Link[$rownum])) -and (!($CurrentExportList.Link.Contains($Link[$rownum])) -or ($CurrentExportList -eq 0))){
+    If(!($LinksChecked.Link.Contains($Link[$rownum]))){
+    
+        $CurrentExportList = @(Import-Csv $CSVExportFile)
+        If($CurrentExportList.Length -eq 0){
+            ($Date + ",""" + $Role[$rownum] + """,""" + $Organisation[$rownum] + """," + $Link[$rownum]) | Add-Content $CSVExportFile
+        }else{
+            If(!($CurrentExportList.Link.Contains($Link[$rownum]))){
+                ($Date + ",""" + $Role[$rownum] + """,""" + $Organisation[$rownum] + """," + $Link[$rownum]) | Add-Content $CSVExportFile
+            }
+        }
+    }
+}
+
+Log-Text("New Volunteer.com.au roles added")
+
+
+
+Log-Text("Collecting Probono Australia data")
+Remove-Item $WebContentFile -Force -ErrorAction Ignore
+
+Foreach($pagenum in 1..10){
+    (Invoke-WebRequest -Uri ("https://probonoaustralia.com.au/search-opportunity/?pages=" + $pagenum + "&type=volunteer&q=&tax_input%5Bprofession%5D%5B%5D=824&tax_input%5Bprofession%5D%5B%5D=75577&tax_input%5Bprofession%5D%5B%5D=844&tax_input%5Bprofession%5D%5B%5D=4441&tax_input%5Bprofession%5D%5B%5D=13485&tax_input%5Bprofession%5D%5B%5D=828&tax_input%5Bprofession%5D%5B%5D=833&tax_input%5Bprofession%5D%5B%5D=836&tax_input%5Bprofession%5D%5B%5D=838&tax_input%5Bprofession%5D%5B%5D=75634&tax_input%5Bprofession%5D%5B%5D=13659&tax_input%5Bprofession%5D%5B%5D=1996&tax_input%5Bprofession%5D%5B%5D=847&tax_input%5Bprofession%5D%5B%5D=842&tax_input%5Bprofession%5D%5B%5D=1892&tax_input%5Bprofession%5D%5B%5D=1805&filter=Search")).Links | Select outerHTML | Where {$_ -match "postTitle"} | Add-Content $WebContentFile
+}
+Log-Text("HTML data collected")
+
+Log-Text("Reading through Probono Australia data")
+ 
+$ProbonoAustraliaOpportunities = Get-Content $WebContentFile
+$count = 0
+$Role = @()
+$Link = @()
+Foreach($Opportunity in $ProbonoAustraliaOpportunities){
+
+    $Role += $Opportunity.substring($Opportunity.IndexOf(">")+1,$Opportunity.IndexOf("</") - $Opportunity.IndexOf(">")-1)                                        
+    $Link += $Opportunity.substring($Opportunity.IndexOf("href")+6,$Opportunity.IndexOf("title") - $Opportunity.IndexOf("href")-9)
+    
+}
+
+Foreach($rownum in 0..($Role.count-1)){
+    
+    If(!($LinksChecked.Link.Contains($Link[$rownum]))){
+    
+        $CurrentExportList = @(Import-Csv $CSVExportFile)
+        If($CurrentExportList.Length -eq 0){
+            ($Date + ",""" + $Role[$rownum] + """,," + $Link[$rownum]) | Add-Content $CSVExportFile
+        }else{
+            If(!($CurrentExportList.Link.Contains($Link[$rownum]))){
+                ($Date + ",""" + $Role[$rownum] + """,," + $Link[$rownum]) | Add-Content $CSVExportFile
+            }
+        }
+    }
+}
+
+Log-Text("New Probono Australia roles added")
+ 
+
+Log-Text("Collecting GoVolunteer data")
+Remove-Item $WebContentFile -Force -ErrorAction Ignore
+
+Foreach($pagenum in 1..20){
+    (Invoke-WebRequest -Uri ("https://govolunteer.com.au/volunteering/in-melbourne-city?cause=14%2c24%2c18%2c21%2c5%2c13%2c16%2c23%2c8%2c25%2c17%2c9%2c2&interest=23%2c28%2c9%2c4%2c18%2c16%2c22%2c27%2c8%2c21&page=" + $pagenum + "&youravailability=3%2c5")).Links | Select outerHTML | Where {($_ -match "volunteering/opportunity/")} | Add-Content $WebContentFile
+}
+Log-Text("HTML data collected")
+
+Log-Text("Reading through GoVolunteer data")
+ 
+$GoVolunteerOpportunities = Get-Content $WebContentFile
+$count = 0
+$Role = @()
+$Link = @()
+Foreach($Opportunity in $GoVolunteerOpportunities){
+
+    $Role += $Opportunity.substring($Opportunity.IndexOf(">")+1,$Opportunity.IndexOf("</") - $Opportunity.IndexOf(">")-1)                                        
+    $Link += "https://govolunteer.com.au" + $Opportunity.substring($Opportunity.IndexOf("href")+6,$Opportunity.IndexOf("title") - $Opportunity.IndexOf("href")-9)
+    
+}
+
+Foreach($rownum in 0..($Role.count-1)){
+    
+    If(!($LinksChecked.Link.Contains($Link[$rownum]))){
+    
+        $CurrentExportList = @(Import-Csv $CSVExportFile)
+        If($CurrentExportList.Length -eq 0){
+            ($Date + ",""" + $Role[$rownum] + """,," + $Link[$rownum]) | Add-Content $CSVExportFile
+        }else{
+            If(!($CurrentExportList.Link.Contains($Link[$rownum]))){
+                ($Date + ",""" + $Role[$rownum] + """,," + $Link[$rownum]) | Add-Content $CSVExportFile
+            }
+        }
+    }
+}
+
+Log-Text("New GoVolunteer roles added")
+
+
+Log-Text("Collecting Indeed data")
+Remove-Item $WebContentFile -Force -ErrorAction Ignore
+
+Foreach($pagenum in 0..5){
+    (Invoke-WebRequest -Uri ("https://au.indeed.com/jobs?q=Volunteer&l=Melbourne+VIC&radius=5&start=" + ($pagenum * 10))).Links | Select outerHTML | Where {($_ -match "rc/")} | Add-Content $WebContentFile
+}
+Log-Text("HTML data collected")
+
+Log-Text("Reading through Indeed data")
+ 
+$Opportunities = Get-Content $WebContentFile
+$count = 0
+$Role = @()
+$Link = @()
+Foreach($Opportunity in $Opportunities){
+
+    #Write-Host $Opportunity
+    if($Opportunity -match "href="){ 
+        $Link += ("https://au.indeed.com" + $Opportunity.substring(6,$Opportunity.IndexOf("""",10) -6))                                        
+       
+    }elseif($Opportunity -match "title="){
+        $Role += $Opportunity.substring(7,$Opportunity.IndexOf("""",10) -7)                                        
+        
+    }      
+}
+
+Foreach($rownum in 0..($Role.count-1)){
+    
+    If(!($LinksChecked.Link.Contains($Link[$rownum]))){
+    
+        $CurrentExportList = @(Import-Csv $CSVExportFile)
+        If($CurrentExportList.Length -eq 0){
+            ($Date + ",""" + $Role[$rownum] + """,," + $Link[$rownum]) | Add-Content $CSVExportFile
+        }else{
+            If(!($CurrentExportList.Link.Contains($Link[$rownum]))){
+                ($Date + ",""" + $Role[$rownum] + """,," + $Link[$rownum]) | Add-Content $CSVExportFile
+            }
+        }
+    }
+}
+
+Log-Text("New Indeed roles added")
+
+
+
+$CurrentExportList = @(Import-Csv $CSVExportFile)
+If($CurrentExportList.Link.Length -eq 0){
+    Log-Text("No new roles")
+    Remove-Item $CSVExportFile -Force -ErrorAction Ignore
+    Remove-Item $WebContentFile -Force -ErrorAction Ignore
+}
+
+$EndTime = Get-Date 
+Log-Text ("Time Taken: " + ($EndTime - $StartTime))
+
+# Pause to see the output of the run
+pause

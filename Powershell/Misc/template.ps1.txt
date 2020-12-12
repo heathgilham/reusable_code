@@ -1,0 +1,76 @@
+# Purpose: 
+# Author: Heath Gilham
+# Logic:  
+# Instructions: 1. Right click this file and choose "Run with Powershell"
+#               2. 
+
+
+# Setup functions
+function Log($Text) {
+    $Timestamp = Get-Date -format "dd-MM-yyyy hh:mm:sstt"
+	$Text = ($Timestamp + " " + $Text)
+    Write-Host $Text
+    Add-content $LogFile -value $Text
+}
+
+
+# Setup variables
+$StartTime = Get-Date 
+$CurrentFolder = Get-Location
+$Datetime = Get-Date -format "ddMMyyyy_hhmmtt"
+$Date = (Get-Date -format "dd-MM-yyyy")
+$LogFolderName = "Log"
+$LogFileName = "$Date.log"
+$LogFolder = "$CurrentFolder\$LogFolderName"
+$LogFile = "$LogFolder\$LogFileName"
+$IsDebuggingMode = $false
+$OldFileDirName = "Old_files"
+If(!(test-path "$LogFolder")){New-Item -Path $CurrentFolder -Name $LogFolderName -ItemType "directory" | Out-Null}
+If(!(test-path "$LogFile")){New-Item -Path $LogFolder -Name $LogFileName -ItemType "file" -Value "" | Out-Null}
+If(!(test-path "$CurrentFolder\$OldFileDirName")){New-Item -Path $CurrentFolder -Name $OldFileDirName -ItemType "directory" | Out-Null}
+
+Log("---------------------Running " + $myInvocation.MyCommand.Path + "---------------------")
+
+
+Log("---------------------Part 1: Starting ---------------------")
+
+Log("---------------------Part 1: Completed ---------------------")
+
+
+
+Log("---------------------Part 2: Starting ---------------------")
+
+Log("---------------------Part 2: Completed ---------------------")
+
+
+If($IsDebuggingMode){Write-Host ("MergedSheetRow: " + $MergedSheetRow)}
+
+
+
+if($Error.Count -eq 0){
+	Log("No Errors Found")
+}else{
+	Log("---------------------" + $Error.Count + " Errors Found---------------------")
+	
+	$ErrorNum = 0
+	foreach($ErrorIndex in ($Error.Count-1)..0){
+		$ErrorInfo = ($Error[$ErrorIndex]).InvocationInfo													; If($IsDebuggingMode){Write-Host ("Error Information: " + $ErrorInfo)}
+		$ErrorNum += 1																						; If($IsDebuggingMode){Write-Host ("ErrorNum: " + $ErrorNum)}
+	
+		Log("Error #" + $ErrorNum + " Found")
+		Log("Script Name: " + $ErrorInfo.ScriptName)
+		Log("Line Number:" + $ErrorInfo.ScriptLineNumber)
+		Log("Line: " + $ErrorInfo.Line)
+		
+	}
+	
+	Log("---------------------" + $Error.Count + " Errors Found---------------------")
+}
+
+Log("---------------------Completed " + $myInvocation.MyCommand.Path + "---------------------")
+
+$EndTime = Get-Date 
+Log("Time Taken: " + ($EndTime - $StartTime))
+
+# Pause to see the output of the run
+pause

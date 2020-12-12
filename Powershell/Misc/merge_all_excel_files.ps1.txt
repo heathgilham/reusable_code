@@ -1,0 +1,46 @@
+# Purpose: Merge all excel files into one. Excluding files containing "dogs"
+# Author: Heath Gilham
+# Logic: Read through all files in the current folder except those containing "dogs" and add the first tab to a new consolidated timestamped file
+# Instructions: 1. Right click this file and choose "run with powershell"
+#				2. Use the output file "MyMergedFile<Timestamp>.xlsx"
+
+# Create output file name
+$Datetime = Get-Date -format "dd/MM/yyyy HH:mm:sstt"
+$LoggingTimestamp = Get-Date -format "dd/MM/yyyy HH:mm:sstt"
+$Path = Get-Location
+$OutputFileName = "MyMergedFile$Datetime.xlsx"
+
+# Backup previous output files
+Write-Host ($LoggingTimestamp + " Backing up old files")
+$OldFileDirName = "Old_files"
+If(!(test-path "$Path\$OldFileDirName")){New-Item -Path $Path -Name $OldFileDirName -ItemType "directory"}
+Move-Item -Path "$Path\dogs*xlsx" -Destination "$Path\$OldFileDirName" -Force
+Write-Host ($LoggingTimestamp + " File backup complete")
+
+# Merge files
+Write-Host ($LoggingTimestamp + " Starting merge of files")
+$ExcelObject = New-Object -ComObject excel.application
+$ExcelObject.visible = $true
+$ExcelFiles=Get-ChildItem -Path "$Path\*.xlsx"
+
+$Workbook = $ExcelObject.Workbooks.add()
+$Worksheet = $Workbook.Sheets.Item(1)
+
+foreach($ExcelFile in $ExcelFiles){
+ 
+	$Everyexcel=$ExcelObject.Workbooks.Open($ExcelFile.FullName)
+	$Everysheet=$Everyexcel.sheets.item(1)
+	$Everysheet.Copy($Worksheet)
+	$Everyexcel.Close()
+	Write-Host ($LoggingTimestamp + " Merged " + $ExcelFile.Name)
+ 
+}
+
+$Workbook.sheets.item("Sheet1").Delete()
+$Workbook.SaveAs("$Path\$OutputFileName")
+$ExcelObject.Quit()
+
+Write-Host ($LoggingTimestamp + " File merge complete")
+
+# Pause to see any error messages from the code
+pause

@@ -1,0 +1,6 @@
+﻿# Purpose: Delete all running excel sessions
+# Author: Heath Gilham
+# Logic: Delete all running excel processes
+# Instructions: 1. Right click this file and choose "Run with Powershell"
+
+Get-Process Excel | Stop-Process

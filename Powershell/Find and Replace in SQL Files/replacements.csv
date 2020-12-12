@@ -1,0 +1,7 @@
+from,to
+coalesce(,COALESCE(
+::text,::TEXT
+" and "," AND "
+"	","    "
+".typecode,",".typecode::TEXT"
+" cte_"," temp."

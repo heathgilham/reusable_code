@@ -1,0 +1,21 @@
+# Purpose: Find and replace many values in SQL file
+# Author: Heath Gilham
+# Logic: 
+# Instructions: 1. 
+#				2. 
+
+# Variables
+$CurrentFolder = 'C:/Mydir/'
+$table_name = "myTable"
+$sql_file = "$CurrentFolder/functions/*.sql"
+$replace_csv = Import-Csv "$CurrentFolder/replacements.csv"
+
+Write-Host "Reading through CSV"
+
+# Replace variables in files
+foreach($line in $replace_csv){
+
+	Get-Item $sql_file | ForEach {
+		(Get-Content $_).replace($line.from, $line.to) | Set-Content ($_.fullname)
+	}	
+}
