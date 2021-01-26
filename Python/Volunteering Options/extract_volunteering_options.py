@@ -28,7 +28,7 @@ os.chdir(os.path.dirname(__file__))
 StartTime = datetime.now() 
 Datetime = datetime.now().strftime("%d%m%Y_%I%M%p")
 Date = datetime.now().strftime("%d-%m-%Y")
-DateForFile = datetime.now().strftime("%d/%m/%Y")
+DateForFile = datetime.now().strftime("%-d/%-m/%Y %I:%M:%S%p")
 LogFolder = "Log/"
 LogFile = LogFolder + "/" + Date + ".log"
 IsDebuggingMode = False
@@ -38,12 +38,11 @@ CSVCheckedFile = "volunteer_options_checked.csv"
 CurrentCheckedLinks = []
 if not os.path.exists(LogFolder):  os.makedirs(LogFolder)
 if not os.path.exists(LogFile):  open(LogFile,"w")
-csv.writer(open(CSVExportFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date","Role","Link"])
-OpenCurrentFile = open(CSVExportFile,'a')
-CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_ALL)
+#csv.writer(open(CSVExportFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date","Role","Link"])
+OpenCurrentFile = open(CSVCheckedFile,'a')
+CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_NONE)
 
-OpenCheckedFile = open(CSVCheckedFile, "r")
-PreviousCheckedLinks = [line[2] for line in csv.reader(OpenCheckedFile)]
+PreviousCheckedLinks = [line[2] for line in csv.reader(open(CSVCheckedFile, "r"))]
             
 Log("Running " + os.path.basename(sys.argv[0]))
 
@@ -72,7 +71,7 @@ while rolecount == rolesperpage:
             URL = "https://www.volunteer.com.au" + href
 
             if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
-                CurrentCSVWriter.writerow([DateForFile, tag.text, URL])
+                CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";"), URL])
                 CurrentCheckedLinks += [URL]
     
 Log("New Volunteer.com.au in person roles added to csv")
@@ -102,7 +101,7 @@ while rolecount == rolesperpage:
             URL = "https://www.volunteer.com.au" + href
       
             if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
-                CurrentCSVWriter.writerow([DateForFile, tag.text, URL])
+                CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";"), URL])
                 CurrentCheckedLinks += [URL]
    
 Log("New Volunteer.com.au online roles added to csv")
@@ -131,12 +130,11 @@ while rolecount == rolesperpage:
             URL = "https://govolunteer.com.au" + href[:-1]
 
             if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
-                    CurrentCSVWriter.writerow([DateForFile, tag.text, URL])
-                    CurrentCheckedLinks += [URL]
+                CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";"), URL])
+                CurrentCheckedLinks += [URL]
                     
 Log("New GoVolunteer roles added to csv")
 
 OpenCurrentFile.close()
-OpenCheckedFile.close()
 EndTime = datetime.now() 
 Log("Time Taken: " + str(EndTime - StartTime))
