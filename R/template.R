@@ -19,7 +19,7 @@ dummy = lapply(PackagesUsed, require, character.only = TRUE)
 
 # Load Data
 files = list.files('C:/myfolder/', recursive = TRUE, full.names = TRUE)
-rbindlist(lapply(files, fread))
+data = rbindlist(lapply(files, fread))
 
 ## Data setup
 
