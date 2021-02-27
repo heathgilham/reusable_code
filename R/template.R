@@ -17,6 +17,9 @@ if(length(PackagesToInstall)>0) {install.packages(PackagesToInstall)}
 # Load Packages
 dummy = lapply(PackagesUsed, require, character.only = TRUE)
 
+# Load Data
+files = list.files('C:/myfolder/', recursive = TRUE, full.names = TRUE)
+rbindlist(lapply(files, fread))
 
 ## Data setup
 
