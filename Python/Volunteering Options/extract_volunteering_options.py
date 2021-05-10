@@ -3,7 +3,6 @@
 # Logic: Download HTML from websites. Find roles and link based on class / href tag. Export roles to file for those which haven't already been checked.
 # Instructions: 1. Run in python intepreter
 #				2. Check through whole list and visit link if interested
-#               3. Copy all rows from "Volunteering_Options.csv" to "Volunteering_Options_Checked.csv" so that they don't show up again
 
 # Import Libraries
 from bs4 import BeautifulSoup
@@ -71,7 +70,7 @@ while rolecount == rolesperpage:
             URL = "https://www.volunteer.com.au" + href
 
             if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
-                CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";"), URL])
+                CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";").replace('"',";"), URL])
                 CurrentCheckedLinks += [URL]
     
 Log("New Volunteer.com.au in person roles added to csv")
