@@ -1,8 +1,9 @@
-# Purpose: Create list of unchecked volunteering opportunities
+# Purpose: Create list of volunteering opportunities
 # Author: Heath Gilham
-# Logic: Download HTML from websites. Find roles and link based on class / href tag. Export roles to file for those which haven't already been checked.
-# Instructions: 1. Run in python intepreter
-#				2. Check through whole list and visit link if interested
+# Logic: Download HTML from websites based on filters. Find roles and link based on class / href tag. Export roles to file for those which haven't already been checked.
+# Instructions: 1. Go to each website and select relevant filters to get relevant URL for use below
+#               2. Run in python intepreter
+#				3. Check through whole list and copy link into chrome if interested
 
 # Import Libraries
 from bs4 import BeautifulSoup
