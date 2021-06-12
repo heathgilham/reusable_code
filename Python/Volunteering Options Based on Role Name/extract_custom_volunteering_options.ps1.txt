@@ -3,7 +3,8 @@
 # Logic: Download HTML from websites. Find roles and link based on class / href tag. Export roles to file for those which haven't already been checked.
 # Instructions: 1. Install the latest version of Python 3 - https://www.python.org/downloads/
 #               2. Change words to search on line 27 of extract_custom_volunteering_options.py
-#               3. Right click this file and choose "Run with Powershell"
-#				4. Check through whole list and copy link into chrome if interested
+#               3. Remove ".txt" at the end of this file name so it ends in ".ps1"
+#               4. Right click this file and choose "Run with Powershell"
+#				5. Check through whole list and copy link into chrome if interested
 
 python extract_custom_volunteering_options.py
