@@ -1,9 +1,10 @@
 # Purpose: Create list of volunteering opportunities based on text filter
 # Author: Heath Gilham
 # Logic: Download HTML from websites. Find roles and link based on class / href tag. Export roles to file for those which haven't already been checked.
-# Instructions: 1. Change words to search on line 27 
-#               2. Run in python intepreter
-#				3. Check through whole list and copy link into chrome if interested
+# Instructions: 1. Install the latest version of Python 3 - https://www.python.org/downloads/
+#               2. Change words to search on line 27 
+#               3. Run in python intepreter
+#				4. Check through whole list and copy link into chrome if interested
 
 # Import Libraries
 from bs4 import BeautifulSoup
