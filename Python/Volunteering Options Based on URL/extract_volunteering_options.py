@@ -37,7 +37,7 @@ CSVCheckedFile = "volunteer_options_checked.csv"
 CurrentCheckedLinks = []
 if not os.path.exists(LogFolder):  os.makedirs(LogFolder)
 if not os.path.exists(LogFile):  open(LogFile,"w")
-#csv.writer(open(CSVExportFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date","Role","Link"])
+if not os.path.exists(CSVCheckedFile): csv.writer(open(CSVCheckedFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date Checked","Role","Link"])
 OpenCurrentFile = open(CSVCheckedFile,'a')
 CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_NONE)
 
