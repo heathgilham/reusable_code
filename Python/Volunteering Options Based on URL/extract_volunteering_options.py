@@ -41,11 +41,57 @@ if not os.path.exists(LogFolder):  os.makedirs(LogFolder)
 if not os.path.exists(LogFile):  open(LogFile,"w")
 if not os.path.exists(CSVCheckedFile): csv.writer(open(CSVCheckedFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date Checked","Role","Link"])
 OpenCurrentFile = open(CSVCheckedFile,'a')
-CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_NONE)
+CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_NONE, escapechar=';')
 
 PreviousCheckedLinks = [line[2] for line in csv.reader(open(CSVCheckedFile, "r"))]
             
 Log("Running " + os.path.basename(sys.argv[0]))
+
+Log("Collecting UN Volunteers data")
+
+srcdata = requests.get(r"https://www.onlinevolunteering.org/en/opportunities?f[]=field_availability_id:532&f[]=language:en").content
+ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
+
+for tag in ATags:
+    
+    try:
+        TagClass = tag.attrs['class']
+    except:
+        TagClass = ""
+    
+    if "basic-link" in TagClass:
+        href = tag.attrs['href']
+        URL = "https://www.onlinevolunteering.org" + href
+        
+        if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
+            CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";").replace('"',";").replace('\n',""), URL])
+            CurrentCheckedLinks += [URL]
+   
+Log("New UN Volunteers roles added to csv")
+
+
+Log("Collecting EthicalJobs data")
+
+srcdata = requests.get(r"https://www.ethicaljobs.com.au/jobs?categories=54%2C16%2C29%2C34%2C36%2C39%2C42%2C45%2C51%2C53&workTypes=6").content
+ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
+
+for tag in ATags:
+    
+    try:
+        TagClass = tag.attrs['class']
+    except:
+        TagClass = ""
+    
+    if "Tilestyles__TileContainer-sc-14evrxc-1" in TagClass:
+        href = tag.attrs['href']
+        URL = "https://www.ethicaljobs.com.au" + href
+        URL = URL.split('?')[0]
+        
+        if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
+            CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";").replace('"',";").replace('\n',""), URL])
+            CurrentCheckedLinks += [URL]
+   
+Log("New EthicalJobs roles added to csv")
 
 
 Log("Collecting Volunteer.com.au in person data")
