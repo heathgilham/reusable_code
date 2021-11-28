@@ -29,7 +29,7 @@ os.chdir(os.path.dirname(__file__))
 StartTime = datetime.now() 
 Datetime = datetime.now().strftime("%d%m%Y_%I%M%p")
 Date = datetime.now().strftime("%d-%m-%Y")
-DateForFile = datetime.now().strftime("%-d/%-m/%Y %I:%M:%S%p")
+DateForFile = datetime.now().strftime("%d/%m/%Y %I:%M:%S%p")
 LogFolder = "Log/"
 LogFile = LogFolder + "/" + Date + ".log"
 IsDebuggingMode = False
@@ -40,35 +40,12 @@ CurrentCheckedLinks = []
 if not os.path.exists(LogFolder):  os.makedirs(LogFolder)
 if not os.path.exists(LogFile):  open(LogFile,"w")
 if not os.path.exists(CSVCheckedFile): csv.writer(open(CSVCheckedFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date Checked","Role","Link"])
-OpenCurrentFile = open(CSVCheckedFile,'a')
+OpenCurrentFile = open(CSVCheckedFile,'a', newline='')
 CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_NONE, escapechar=';')
 
-PreviousCheckedLinks = [line[2] for line in csv.reader(open(CSVCheckedFile, "r"))]
-            
+PreviousCheckedLinks = [line[2] for line in csv.reader(open(CSVCheckedFile, "r", encoding= 'unicode_escape'))]
+           
 Log("Running " + os.path.basename(sys.argv[0]))
-
-Log("Collecting UN Volunteers data")
-
-srcdata = requests.get(r"https://www.onlinevolunteering.org/en/opportunities?f[]=field_availability_id:532&f[]=language:en").content
-ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
-
-for tag in ATags:
-    
-    try:
-        TagClass = tag.attrs['class']
-    except:
-        TagClass = ""
-    
-    if "basic-link" in TagClass:
-        href = tag.attrs['href']
-        URL = "https://www.onlinevolunteering.org" + href
-        
-        if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
-            CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";").replace('"',";").replace('\n',""), URL])
-            CurrentCheckedLinks += [URL]
-   
-Log("New UN Volunteers roles added to csv")
-
 
 Log("Collecting EthicalJobs data")
 
@@ -96,17 +73,18 @@ Log("New EthicalJobs roles added to csv")
 
 Log("Collecting Volunteer.com.au in person data")
 
+headers = {"user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"}
+
 rolesperpage = 15               
 rolecount = 15 
 pagenum = 0              
 while rolecount == rolesperpage:
     pagenum += 1
-    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-melbourne-cbd-inner-suburbs-melbourne-vic?daytime=1%2C3&page=" + str(pagenum) + r"&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27").content
+    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-melbourne-cbd-inner-suburbs-melbourne-vic?daytime=1%2C3&page=" + str(pagenum) + r"&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27", headers=headers).content
     ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
     
     rolecount = 0
     for tag in ATags:
-        
         try:
             TagClass = tag.attrs['class']
         except:
@@ -131,7 +109,7 @@ rolecount = 15
 pagenum = 0
 while rolecount == rolesperpage:
     pagenum += 1
-    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-online-or-remote?daytime=1%2C3&page=" + str(pagenum) + r"&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27").content
+    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-online-or-remote?daytime=1%2C3&page=" + str(pagenum) + r"&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27", headers=headers).content
     ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
     
     rolecount = 0
