@@ -1,0 +1,31 @@
+# Purpose: Find files which have dependencies on another script
+# Author: Heath Gilham
+# Logic:  Find all files (excluding log files) which contain the relevant script name and output to a file
+# Instructions: 1. Right click this file and choose "Run with Powershell"
+#               2. Use text file with list of files
+
+
+# Setup variables
+$StartTime = Get-Date 
+$CurrentFolder = Get-Location
+$OutputFile = "$CurrentFolder\found_xml_files.txt"
+Remove-Item -Path $OutputFile -ErrorAction Ignore
+
+
+Write-Host ("---------------------Running " + $myInvocation.MyCommand.Path + "---------------------")
+
+$FilesInCurrentFolder = Get-ChildItem -Path $CurrentFolder -Recurse -Include "*.xml" -Exclude "*.log" | Select FullName
+
+Write-Host ("Adding file list to " + $OutputFile)
+
+foreach($File in $FilesInCurrentFolder){
+    Add-content $OutputFile -value $File.FullName
+}
+
+Write-Host ("---------------------Completed " + $myInvocation.MyCommand.Path + "---------------------")
+
+$EndTime = Get-Date 
+Write-Host ("Time Taken: " + ($EndTime - $StartTime))
+
+# Pause to see the output of the run
+pause
