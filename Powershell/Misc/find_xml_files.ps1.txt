@@ -1,6 +1,6 @@
-# Purpose: Find files which have dependencies on another script
+# Purpose: Find all xml files in the current folder and any subfolders
 # Author: Heath Gilham
-# Logic:  Find all files (excluding log files) which contain the relevant script name and output to a file
+# Logic:  Find all xml files and output to a file
 # Instructions: 1. Right click this file and choose "Run with Powershell"
 #               2. Use text file with list of files
 
@@ -14,7 +14,7 @@ Remove-Item -Path $OutputFile -ErrorAction Ignore
 
 Write-Host ("---------------------Running " + $myInvocation.MyCommand.Path + "---------------------")
 
-$FilesInCurrentFolder = Get-ChildItem -Path $CurrentFolder -Recurse -Include "*.xml" -Exclude "*.log" | Select FullName
+$FilesInCurrentFolder = Get-ChildItem -Path $CurrentFolder -Recurse -Include "*.xml" | Select FullName
 
 Write-Host ("Adding file list to " + $OutputFile)
 
