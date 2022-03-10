@@ -1,0 +1,48 @@
+# Purpose: Identify unused variables in Python scripts
+# Author: Heath Gilham
+# Logic: Identify variables in Python scripts which are not used. Only for scripts in the current folder.
+# Instructions:1. Right click this file and choose "Run with Powershell"
+#						2. Read through the list of unused variables and update them
+
+# Setup functions
+function Log-Text($Text) {
+    
+	$Timestamp = Get-Date -format "dd-MM-yyyy hh:mm:sstt"
+	$Date = (Get-Date -format "dd-MM-yyyy")
+	$LogFolderName = "Log"
+	$LogFileName = "$Date.log"
+	$LogFolder = "$CurrentFolder\$LogFolderName"
+	$LogFile = "$LogFolder\$LogFileName"
+	
+	If(!(test-path "$LogFolder")){New-Item -Path $CurrentFolder -Name $LogFolderName -ItemType "directory"}
+	If(!(test-path "$LogFile")){New-Item -Path $LogFolder -Name $LogFileName -ItemType "file" -Value ""}
+	
+	$Text = ($Timestamp + " " + $Text)
+    Write-Host $Text
+    Add-content $LogFile -value $Text
+}
+
+
+# Setup variables
+$StartTime = Get-Date 
+$CurrentFolder = Get-Location
+$PS1FilesInCurrentFolder = Get-ChildItem "$CurrentFolder\*.py" -Exclude $myInvocation.MyCommand.Name
+$IsDebuggingMode = $false
+
+foreach($file in $PS1FilesInCurrentFolder){
+	
+	Log-Text("Checking file: " + $file.name)
+	
+	foreach($row in (Get-Content $file)){
+		
+		If($row -like "*=*" -and !($row -like "*.*=*") -and !($row -like "*#*")){
+            $VariableName = $row.substring(0,$row.IndexOf("=")).trim()
+            $VariableUsedCount = ($File | select-string -pattern ($VariableName)).length														;If($IsDebuggingMode){Write-Host $VariableUsedCount}
+		
+			If($VariableUsedCount -eq 1){
+				Log-Text("Variable not used: " + $VariableName)
+			}
+		}
+		
+	}
+}
