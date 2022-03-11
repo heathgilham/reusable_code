@@ -35,7 +35,7 @@ foreach($file in $PS1FilesInCurrentFolder){
 	
 	foreach($row in (Get-Content $file)){
 		
-		If($row -like "*=*" -and !($row -like "*.*=*") -and !($row -like "*#*=*")){
+		If($row -like "*=*" -and !($row -like "*.*=*") -and !($row -like "*#*=*") -and !($row -like "*if *=*") -and !($row -like "*while *=*") -and !($row -like "*def *=*") -and !($row -like "*:*=*") -and !($row -like "*``[*=*")){
             $VariableName = $row.substring(0,$row.IndexOf("=")).trim()
             $VariableUsedCount = ($File | select-string -pattern ($VariableName)).length														;If($IsDebuggingMode){Write-Host $VariableUsedCount}
 		
