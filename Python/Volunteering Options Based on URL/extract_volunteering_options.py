@@ -39,36 +39,38 @@ CSVCheckedFile = "volunteer_options_checked.csv"
 CurrentCheckedLinks = []
 if not os.path.exists(LogFolder):  os.makedirs(LogFolder)
 if not os.path.exists(LogFile):  open(LogFile,"w")
-if not os.path.exists(CSVCheckedFile): csv.writer(open(CSVCheckedFile,'w'), quoting=csv.QUOTE_ALL).writerow(["Date Checked","Role","Link"])
-OpenCurrentFile = open(CSVCheckedFile,'a', newline='')
+if not os.path.exists(CSVCheckedFile): csv.writer(open(CSVCheckedFile,'w', encoding="utf-8"), quoting=csv.QUOTE_ALL).writerow(["Date Checked","Role","Link"])
+OpenCurrentFile = open(CSVCheckedFile,'a', newline='', encoding="utf-8")
 CurrentCSVWriter = csv.writer(OpenCurrentFile, quoting=csv.QUOTE_NONE, escapechar=';')
 
-PreviousCheckedLinks = [line[2] for line in csv.reader(open(CSVCheckedFile, "r", encoding= 'unicode_escape'))]
+PreviousCheckedLinks = [line[2] for line in csv.reader(open(CSVCheckedFile, "r", encoding="utf-8", errors="ignore"))]
            
 Log("Running " + os.path.basename(sys.argv[0]))
 
-Log("Collecting EthicalJobs data")
+# Log("Collecting EthicalJobs data")
 
-srcdata = requests.get(r"https://www.ethicaljobs.com.au/jobs?categories=54%2C16%2C29%2C34%2C36%2C39%2C42%2C45%2C51%2C53&workTypes=6").content
-ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
+# srcdata = requests.get(r"https://www.ethicaljobs.com.au/jobs?categories=54%2C16%2C29%2C34%2C36%2C39%2C42%2C45%2C51%2C53&workTypes=6").content
+# ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
 
-for tag in ATags:
+# for tag in ATags:
     
-    try:
-        TagClass = tag.attrs['class']
-    except:
-        TagClass = ""
+#     try:
+#         TagClass = tag.attrs['class']
+#     except:
+#         TagClass = ""
     
-    if "Tilestyles__TileContainer-sc-14evrxc-1" in TagClass:
-        href = tag.attrs['href']
-        URL = "https://www.ethicaljobs.com.au" + href
-        URL = URL.split('?')[0]
+#     if "Tilestyles__TileContainer-sc-14evrxc-1" in TagClass:
+#         href = tag.attrs['href']
+#         URL = "https://www.ethicaljobs.com.au" + href
+#         URL = URL.split('?')[0]
         
-        if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
-            CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";").replace('"',";").replace('\n',""), URL])
-            CurrentCheckedLinks += [URL]
+#         if URL not in PreviousCheckedLinks and URL not in CurrentCheckedLinks:
+#             print(URL)
+#             print(tag.text.replace(",",";").replace('"',";").replace('\n',"").replace("•","").rstrip())
+#             CurrentCSVWriter.writerow([DateForFile, tag.text.replace(",",";").replace('"',";").replace('\n',"").replace(" "," ").rstrip(), URL])
+#             CurrentCheckedLinks += [URL]
    
-Log("New EthicalJobs roles added to csv")
+# Log("New EthicalJobs roles added to csv")
 
 
 Log("Collecting Volunteer.com.au in person data")
@@ -80,7 +82,7 @@ rolecount = 15
 pagenum = 0              
 while rolecount == rolesperpage:
     pagenum += 1
-    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-melbourne-cbd-inner-suburbs-melbourne-vic?daytime=1%2C3&page=" + str(pagenum) + r"&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27", headers=headers).content
+    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-melbourne-cbd-inner-suburbs-melbourne-vic?page=" + str(pagenum) + r"&radius=5&typeofwork=2%2C3%2C4%2C8%2C9%2C10%2C11%2C13%2C14%2C16%2C18%2C19%2C20%2C21%2C22%2C23%2C24%2C25%2C27%2C28%2C30", headers=headers).content
     ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
     
     rolecount = 0
@@ -109,7 +111,7 @@ rolecount = 15
 pagenum = 0
 while rolecount == rolesperpage:
     pagenum += 1
-    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-online-or-remote?daytime=1%2C3&page=" + str(pagenum) + r"&radius=5&typeofwork=4%2C8%2C9%2C16%2C18%2C21%2C22%2C23%2C27", headers=headers).content
+    srcdata = requests.get(r"https://www.volunteer.com.au/volunteering/in-online-or-remote?page=" + str(pagenum) + r"&radius=5&typeofwork=2%2C3%2C4%2C8%2C9%2C10%2C11%2C13%2C14%2C16%2C18%2C19%2C20%2C21%2C22%2C23%2C24%2C25%2C27%2C28%2C30", headers=headers).content
     ATags = BeautifulSoup(srcdata, features = "html.parser").find_all("a")
     
     rolecount = 0
